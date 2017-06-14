@@ -36,49 +36,48 @@ Extractor =
         @communicate 'OUTPUT END'
 
     extract: (node)->
-        if node.statements
-            for statement in node.statements
+        if node.body
+            for statement in node.body
                 @extract statement
-
-        else if node.type == 'block' and node.mustache.id.original == 'trans'
-            content_node = node.program.statements[0]
+        else if node.type == 'BlockStatement' and node.path.original == 'trans'
+            content_node = node.program.body[0]
             @output.push
                 line_number:content_node.first_line
-                content:content_node.string
+                content:content_node.original
                 funcname:'_'
 
-        else if node.type == 'block' and node.mustache.id.original == 'ntrans'
-            content_node = node.program.statements[0]
-            alt_content_node = node.program.inverse.statements[0]
+        else if node.type == 'BlockStatement' and node.path.original == 'ntrans'
+            content_node = node.program.body[0]
+            alt_content_node = node.inverse.body[0]
             @output.push
                 line_number:content_node.first_line
                 alt_line_number:alt_content_node.first_line
-                content:content_node.string
-                alt_content:alt_content_node.string
+                content:content_node.original
+                alt_content:alt_content_node.original
                 funcname:'ngettext'
 
-        else if node.type == 'block'
+        else if node.type == 'BlockStatement'
             @extract node.program
-            if node.program.inverse
-                @extract node.program.inverse
+            if node.inverse
+                @extract node.inverse
             return
 
-        else if node.type == 'mustache'
-            if node.id.original == '_'
+        else if node.type == 'MustacheStatement'
+            if node.path.original == '_'
                 param = node.params[0]
-                if param.type.toUpperCase()=='STRING' #being uppercase since sounds strange and fragile to me...better to make sure its uppercase for possible future changes
+                if param.type.toUpperCase()=='STRINGLITERAL'
                     @output.push
-                        line_number:node.first_line
-                        content:param.string
+                        line_number:node.path.first_line
+                        content:param.original
                         funcname:'_'
 
-            else if node.id.original == 'n_'
+            else if node.path.original == 'n_'
                 param = node.params[1]
-                if param.type.toUpperCase()=='STRING'
+                if param.type.toUpperCase()=='STRINGLITERAL'
                     @output.push
-                        line_number:node.first_line
-                        content:node.params[1].string
-                        alt_content:node.params[2].string
+                        line_number:node.path.first_line
+                        content:node.params[1].original
+                        alt_content:node.params[2].original
                         funcname:'ngettext'
 
 
