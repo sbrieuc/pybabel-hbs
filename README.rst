@@ -3,6 +3,7 @@ PyBabel-HBS
 
 Release notes
 --------------
+- 0.4.0 - Updated for Handlebars 4
 - 0.2.2 -
     - Fixed bug with \n_ extraction
     - Fixed bug when _ and \n_ variable translations being inserted into .po file
